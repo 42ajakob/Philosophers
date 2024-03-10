@@ -12,12 +12,37 @@ void	destroy_forks(t_table *tbl, int i)
 	}
 }
 
-t_table	*init_table(int argc, char **argv)
+int	init_mutexes(t_table *tbl)
 {
-	t_table	*tbl;
 	int i;
 
 	i = 0;
+	tbl->forks = ft_calloc(sizeof(pthread_mutex_t) * tbl->n_philo + 1);
+	if (!tbl->forks)
+		return (tbl->forks = NULL, -1);
+	while (i < tbl->n_philo)
+	{
+		if (pthread_mutex_init(&tbl->forks[i], NULL) != 0)
+			return (destroy_forks(tbl, i), -1);
+		i++;
+	}
+	if (pthread_mutex_init(&tbl->mutex_printf, NULL) != 0)
+		return (destroy_forks(tbl, i), -1);
+	if (pthread_mutex_init(&tbl->mutex_eaten, NULL) != 0)
+		return (destroy_forks(tbl, i), pthread_mutex_destroy(&tbl->mutex_printf), -1);
+	if (pthread_mutex_init(&tbl->mutex_last_meal, NULL) != 0)
+	{
+		pthread_mutex_destroy(&tbl->mutex_printf);
+		pthread_mutex_destroy(&tbl->mutex_eaten);
+		return (destroy_forks(tbl, i), -1);
+	}
+	return (0);
+}
+
+t_table	*init_table(int argc, char **argv)
+{
+	t_table	*tbl;
+
 	tbl = ft_calloc(sizeof(t_table));
 	if (!tbl)
 		return (NULL);
@@ -29,37 +54,27 @@ t_table	*init_table(int argc, char **argv)
 		tbl->n_eat = ft_atoi(argv[5]);
 	else
 		tbl->n_eat = -1;
-	tbl->forks = ft_calloc(sizeof(pthread_mutex_t) * tbl->n_philo + 1);
-	if (!tbl->forks)
-		return (free(tbl), NULL);
-	while (i < tbl->n_philo)
+	if (init_mutexes(tbl) == -1)
 	{
-		if (pthread_mutex_init(&tbl->forks[i], NULL) != 0)
-		{
-			destroy_forks(tbl, i);
-			return (free(tbl), NULL);
-		}
-		i++;
-	}
-	if (pthread_mutex_init(&tbl->mutex_printf, NULL) != 0)
-	{
-		destroy_forks(tbl, i);
-		return (free(tbl), NULL);
-	}
-	if (pthread_mutex_init(&tbl->mutex_eaten, NULL) != 0)
-	{
-		destroy_forks(tbl, i);
-		pthread_mutex_destroy(&tbl->mutex_printf);
-		return (free(tbl), NULL);
-	}
-	if (pthread_mutex_init(&tbl->mutex_last_meal, NULL) != 0)
-	{
-		destroy_forks(tbl, i);
-		pthread_mutex_destroy(&tbl->mutex_printf);
-		pthread_mutex_destroy(&tbl->mutex_eaten);
+		if (tbl->forks)
+			free(tbl->forks);
 		return (free(tbl), NULL);
 	}
 	return (tbl);
+}
+
+void	sort_mutex_pointers(t_table *tbl, t_philo *philo, int i) // LATER Death
+{
+	philo->left_fork = &tbl->forks[i];
+	if (i + 1 < tbl->n_philo)
+		philo->right_fork = &tbl->forks[i + 1];
+	else if (i + 1 == tbl->n_philo && tbl->n_philo > 1)
+		philo->right_fork = &tbl->forks[0];
+	else
+		philo->right_fork = NULL;
+	philo->mutex_printf = &tbl->mutex_printf;
+	philo->mutex_eaten = &tbl->mutex_eaten;
+	philo->mutex_last_meal = &tbl->mutex_last_meal;
 }
 
 t_philo	*init_philo(t_table *tbl)
@@ -73,30 +88,41 @@ t_philo	*init_philo(t_table *tbl)
 	i = 0;
 	while (i < tbl->n_philo)
 	{
-		philo[i].id = i + 1;
+		philo[i].id = i;
 		philo[i].t_eat = tbl->t_eat;
 		philo[i].t_sleep = tbl->t_sleep;
 		philo[i].n_eat = tbl->n_eat;
 		philo[i].n_eaten = 0;
 		philo[i].dead = 0;
-		philo[i].left_fork = &tbl->forks[i];
-		if (i + 1 < tbl->n_philo) // if init_mutex failed
-			philo[i].right_fork = &tbl->forks[i + 1];
-		else if (i + 1 == tbl->n_philo && tbl->n_philo > 1)
-			philo[i].right_fork = &tbl->forks[0];
-		else
-			philo[i].right_fork = NULL;
-		init_mutex(tbl, &philo[i]);
+		philo[i].tbl = tbl;
+		philo[i].last_meal = get_time();
+		sort_mutex_pointers(tbl, &philo[i], i);
 		i++;
 	}
 	return (philo);
 }
 
-void	init_mutex(t_table *tbl, t_philo *philo) // LATER Death
+int	create_and_join_threads(t_table *tbl, pthread_t *thread, t_philo *philo, int *j)
 {
-	philo->mutex_printf = &tbl->mutex_printf;
-	philo->mutex_eaten = &tbl->mutex_eaten;
-	philo->mutex_last_meal = &tbl->mutex_last_meal;
+	int i;
+
+	i = 0;
+	while (i < tbl->n_philo)
+	{
+		if (pthread_create(&thread[i], NULL, &runtime, (void *)&philo[j[i]]) != 0)
+			return (-1);
+		i++;
+	}
+	if (pthread_create(&thread[i], NULL, &check_death, (void *)philo) != 0)
+		return (-1);
+	i = 0;
+	while (i < tbl->n_philo + 1)
+	{
+		if (pthread_join(thread[i], NULL) != 0)
+			return (-1);
+		i++;
+	}
+	return (0);
 }
 
 int init_thread(t_table *tbl, t_philo *philo)
@@ -106,7 +132,7 @@ int init_thread(t_table *tbl, t_philo *philo)
 	int i;
 
 	i = 0;
-	thread = ft_calloc(sizeof(pthread_t) * tbl->n_philo); // plus 1 for checking deaths
+	thread = ft_calloc(sizeof(pthread_t) * tbl->n_philo + 1); // plus 1 for checking deaths
 	if (!thread)
 		return (-1);
 	j = ft_calloc(sizeof(int) * tbl->n_philo); // mhhh
@@ -117,20 +143,8 @@ int init_thread(t_table *tbl, t_philo *philo)
 		j[i] = i;
 		i++;
 	}
-	i = 0;
-	while (i < tbl->n_philo)
-	{
-		if (pthread_create(&thread[i], NULL, &runtime, (void *)&philo[j[i]]) != 0)
-			return (-1);
-		i++;
-	}
-	i = 0;
-	while (i < tbl->n_philo)
-	{
-		if (pthread_join(thread[i], NULL) != 0)
-			return (-1);
-		i++;
-	}
+	if (create_and_join_threads(tbl, thread, philo, j) == -1)
+		return (free(thread), free(j), -1);
 	free(j);
 	free(thread);
 	return (0);

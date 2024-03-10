@@ -20,7 +20,9 @@ int	valid_args(int argc, char **argv)
 		}
 		i++;
 	}
-	if (ft_atoi(argv[1]) > 200)
+	if (ft_atoi(argv[1]) < 1 || ft_atoi(argv[1]) > 200)
+		return (EXIT_FAILURE);
+	if (ft_atoi(argv[2]) < 60 || ft_atoi(argv[3]) < 60 || ft_atoi(argv[4]) < 60)
 		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
