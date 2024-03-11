@@ -32,12 +32,19 @@ int	init_mtx(t_table *tbl)
 	}
 	if (pthread_mutex_init(&mtx->mtx_printf, NULL) != 0)
 		return (destroy_forks(mtx, i), -1);
-	if (pthread_mutex_init(&mtx->mtx_eaten, NULL) != 0)
-		return (destroy_forks(mtx, i), pthread_mutex_destroy(&mtx->mtx_printf), -1);
 	if (pthread_mutex_init(&mtx->mtx_last_meal, NULL) != 0)
+		return (destroy_forks(mtx, i), pthread_mutex_destroy(&mtx->mtx_printf), -1);
+	if (pthread_mutex_init(&mtx->mtx_n_eaten, NULL) != 0)
 	{
 		pthread_mutex_destroy(&mtx->mtx_printf);
-		pthread_mutex_destroy(&mtx->mtx_eaten);
+		pthread_mutex_destroy(&mtx->mtx_last_meal);
+		return (destroy_forks(mtx, i), -1);
+	}
+	if (pthread_mutex_init(&mtx->mtx_n_eat, NULL) != 0)
+	{
+		pthread_mutex_destroy(&mtx->mtx_printf);
+		pthread_mutex_destroy(&mtx->mtx_last_meal);
+		pthread_mutex_destroy(&mtx->mtx_n_eaten);
 		return (destroy_forks(mtx, i), -1);
 	}
 	tbl->mtx = mtx;
@@ -97,7 +104,6 @@ t_philo	*init_philo(t_table *tbl)
 		philo[i].t_die = tbl->t_die;
 		philo[i].t_eat = tbl->t_eat;
 		philo[i].t_sleep = tbl->t_sleep;
-		philo[i].n_eat = tbl->n_eat;
 		philo[i].n_eaten = 0;
 		philo[i].dead = 0;
 		philo[i].tbl = tbl;

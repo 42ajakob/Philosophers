@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:46:00 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/11 14:54:51 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/11 15:44:50 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ typedef struct s_mtx
 {
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	mtx_printf;
-	// pthread_mutex_t	mutex_n_eat;
-	pthread_mutex_t	mtx_eaten;
 	pthread_mutex_t	mtx_last_meal;
+	pthread_mutex_t	mtx_n_eaten;
+	pthread_mutex_t	mtx_n_eat;
 }	t_mtx;
 
 typedef struct s_table
@@ -47,7 +47,6 @@ typedef struct s_philo
 	long			t_die;
 	int				t_eat;
 	int				t_sleep;
-	int				n_eat;
 	long			last_meal;
 	int				dead;
 	t_table			*tbl;
@@ -72,7 +71,10 @@ void	sort_mutex_pointers(t_table *tbl, t_philo *philo, int i);
 int		init_thread(t_table *tbl, t_philo *philo);
 
 // mutex.c
-int	get_printf(t_philo *philo, long time, int id, char *str);
+int		get_printf(t_philo *philo, long time, int id, char *str);
+long	get_last_meal(t_philo *philo);
+int		get_n_eaten(t_philo *philo);
+int		get_n_eat(t_philo *philo);
 
 // validate.c
 int		valid_args(int argc, char **argv);

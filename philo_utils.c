@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:04:44 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/11 15:00:46 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/11 15:36:57 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,9 @@ void	free_all(t_table *tbl, t_philo *philo)
 		free(tbl->mtx->forks);
 	}
 	pthread_mutex_destroy(&tbl->mtx->mtx_printf);
-	pthread_mutex_destroy(&tbl->mtx->mtx_eaten);
 	pthread_mutex_destroy(&tbl->mtx->mtx_last_meal);
+	pthread_mutex_destroy(&tbl->mtx->mtx_n_eaten);
+	pthread_mutex_destroy(&tbl->mtx->mtx_n_eat);
 	if (tbl->mtx)
 		free(tbl->mtx);
 	if (tbl)
