@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:46:00 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/10 18:43:54 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/11 12:20:57 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ t_philo	*init_philo(t_table *tbl);
 void	sort_mutex_pointers(t_table *tbl, t_philo *philo, int i);
 int		init_thread(t_table *tbl, t_philo *philo);
 
+// mutex.c
+int	get_printf(t_philo *philo, long time, int id, char *str);
 
 // validate.c
 int		valid_args(int argc, char **argv);

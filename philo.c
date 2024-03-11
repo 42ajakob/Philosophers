@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:37:20 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/10 19:27:25 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/11 14:14:57 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	check_eaten(t_philo *philo)
 	int	j;
 
 	i = 0;
-	j = 1;
+	j = 0;
 	if (philo[0].n_eat == -1)
 		return (0);
 	while (i < philo[0].tbl->n_philo)
@@ -55,74 +55,62 @@ void	*check_death(void *arg)
 	philo = (t_philo *)arg;
 	i = 0;
 	ft_usleep(philo[0].tbl->t_die - 10);
-	while ((get_time() < philo[i].last_meal + philo[i].tbl->t_die && philo[i].n_eaten != philo[i].n_eat && philo[i].n_eat != -1)
-		|| (get_time() < philo[i].tbl->t_die + philo[i].last_meal && philo[i].n_eat == -1)) // mutex var
+	while ((get_time() < philo[i].last_meal + philo[i].tbl->t_die && check_eaten(philo) == 0)) // mutex var
 	{
+		
 		i++;
 		if (i == philo[0].tbl->n_philo) // mutex var
 		{
 			ft_usleep(1);
 			i = 0;
 		}
-		// if (check_eaten(philo) == 1) // Mutex var
-		// 	return(printf("Ok!\n"), NULL);
 	}
-	if ((get_time() >= philo[i].last_meal + philo[i].tbl->t_die && philo[i].n_eaten != philo[i].n_eat && philo[i].n_eat != -1) 
-		|| (get_time() >= philo[i].last_meal + philo[i].tbl->t_die && philo[i].n_eat == -1)) // mutex var
+	if (get_time() >= philo[i].last_meal + philo[i].tbl->t_die && check_eaten(philo) == 0) // mutex var
 	{
+		if (philo[i].n_eaten >= philo[i].n_eat && philo[i].n_eat != -1)
+			return (check_death(philo));
 		pthread_mutex_lock(philo[0].mutex_printf);
 		printf("%ld %d died\n", get_time() - philo[i].sta_time, philo[i].id + 1); // mutex var
-		pthread_mutex_unlock(philo[0].mutex_printf);
 		set_philo_dead(philo, philo[0].tbl->n_philo); // mutex var
+		pthread_mutex_unlock(philo[0].mutex_printf);
 	}
 	return (NULL);
+}
+
+int	one_philo(t_philo *philo)
+{
+	pthread_mutex_lock(philo->mutex_last_meal);
+	philo->last_meal = get_time();
+	pthread_mutex_unlock(philo->mutex_last_meal);
+	get_printf(philo, get_time() - philo->sta_time, philo->id + 1, "has taken a fork");
+	ft_usleep(philo->tbl->t_die + 10);
+	return (-1);
 }
 
 int	simulation(t_philo *philo)
 {
 	pthread_mutex_lock(philo->left_fork);
 	if (philo->right_fork == NULL)
-	{
-		pthread_mutex_lock(philo->mutex_last_meal);
-		philo->last_meal = get_time();
-		pthread_mutex_unlock(philo->mutex_last_meal);
-		pthread_mutex_lock(philo->mutex_printf);
-		printf("%ld %d has taken a fork\n", get_time() - philo->sta_time, philo->id + 1);
-		pthread_mutex_unlock(philo->mutex_printf);
-		ft_usleep(philo->tbl->t_die + 10);
-		return (-1);
-	}
+		return (one_philo(philo));
 	pthread_mutex_lock(philo->right_fork);
 	philo->cur_time = get_time();
-	pthread_mutex_lock(philo->mutex_printf);
-	if (philo->dead == 1)
-		return (pthread_mutex_unlock(philo->mutex_printf), -1);
-	printf("%ld %d has taken a fork\n", philo->cur_time - philo->sta_time, philo->id + 1);
-	printf("%ld %d has taken a fork\n", philo->cur_time - philo->sta_time, philo->id + 1);
-	printf("%ld %d is eating\n", philo->cur_time - philo->sta_time, philo->id + 1);
-	pthread_mutex_unlock(philo->mutex_printf);
-	pthread_mutex_lock(philo->mutex_last_meal);
-	philo->last_meal = philo->cur_time;
-	pthread_mutex_unlock(philo->mutex_last_meal);
+	get_printf(philo, philo->cur_time - philo->sta_time, philo->id + 1, "has taken a fork");
+	get_printf(philo, philo->cur_time - philo->sta_time, philo->id + 1, "has taken a fork");
+	get_printf(philo, philo->cur_time - philo->sta_time, philo->id + 1, "is eating");
 	pthread_mutex_lock(philo->mutex_eaten);
 	philo->n_eaten++;
 	pthread_mutex_unlock(philo->mutex_eaten);
+	pthread_mutex_lock(philo->mutex_last_meal);
+	philo->last_meal = philo->cur_time;
+	pthread_mutex_unlock(philo->mutex_last_meal);
 	philo->cur_time = ft_usleep(philo->t_eat);
 	pthread_mutex_unlock(philo->left_fork);
 	pthread_mutex_unlock(philo->right_fork);
-	// if (philo->dead == 1)
-	// 	return (-1);
-	pthread_mutex_lock(philo->mutex_printf);
-	if (philo->dead == 1)
-		return (pthread_mutex_unlock(philo->mutex_printf), -1);
-	printf("%ld %d is sleeping\n", philo->cur_time - philo->sta_time, philo->id + 1);
-	pthread_mutex_unlock(philo->mutex_printf);
+	if (get_printf(philo, philo->cur_time - philo->sta_time, philo->id + 1, "is sleeping") == -1)
+		return (-1);
 	philo->cur_time = ft_usleep(philo->t_sleep);
-	pthread_mutex_lock(philo->mutex_printf);
-	if (philo->dead == 1)
-		return (pthread_mutex_unlock(philo->mutex_printf), -1);
-	printf("%ld %d is thinking\n", philo->cur_time - philo->sta_time, philo->id + 1);
-	pthread_mutex_unlock(philo->mutex_printf);
+	if (get_printf(philo, philo->cur_time - philo->sta_time, philo->id + 1, "is thinking") == -1)
+		return (-1);
 	return (EXIT_SUCCESS);
 }
 
