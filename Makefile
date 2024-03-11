@@ -4,7 +4,6 @@ SRCS		=	philo.c \
 				init.c \
 				validate.c \
 				philo_utils.c \
-				time.c \
 				mutex.c
 
 OBJS		=	${SRCS:.c=.o}

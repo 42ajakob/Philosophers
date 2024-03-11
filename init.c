@@ -1,41 +1,46 @@
 # include "philo.h"
 
-void	destroy_forks(t_table *tbl, int i)
+void	destroy_forks(t_mtx *mtx, int i)
 {
 	int j;
 	
 	j = 0;
 	while (j < i)
 	{
-		pthread_mutex_destroy(&tbl->forks[j]);
+		pthread_mutex_destroy(&mtx->forks[j]);
 		j++;
 	}
 }
 
-int	init_mutexes(t_table *tbl)
+int	init_mtx(t_table *tbl)
 {
+	t_mtx	*mtx;
 	int i;
 
 	i = 0;
-	tbl->forks = ft_calloc(sizeof(pthread_mutex_t) * tbl->n_philo + 1);
-	if (!tbl->forks)
-		return (tbl->forks = NULL, -1);
+	mtx = ft_calloc(sizeof(t_mtx));
+	if (!mtx)
+		return (-1);
+	mtx->forks = ft_calloc(sizeof(pthread_mutex_t) * tbl->n_philo + 1);
+	if (!mtx->forks)
+		return (free(mtx), mtx->forks = NULL, -1);
 	while (i < tbl->n_philo)
 	{
-		if (pthread_mutex_init(&tbl->forks[i], NULL) != 0)
-			return (destroy_forks(tbl, i), -1);
+		if (pthread_mutex_init(&mtx->forks[i], NULL) != 0)
+			return (destroy_forks(mtx, i), -1);
 		i++;
 	}
-	if (pthread_mutex_init(&tbl->mutex_printf, NULL) != 0)
-		return (destroy_forks(tbl, i), -1);
-	if (pthread_mutex_init(&tbl->mutex_eaten, NULL) != 0)
-		return (destroy_forks(tbl, i), pthread_mutex_destroy(&tbl->mutex_printf), -1);
-	if (pthread_mutex_init(&tbl->mutex_last_meal, NULL) != 0)
+	if (pthread_mutex_init(&mtx->mtx_printf, NULL) != 0)
+		return (destroy_forks(mtx, i), -1);
+	if (pthread_mutex_init(&mtx->mtx_eaten, NULL) != 0)
+		return (destroy_forks(mtx, i), pthread_mutex_destroy(&mtx->mtx_printf), -1);
+	if (pthread_mutex_init(&mtx->mtx_last_meal, NULL) != 0)
 	{
-		pthread_mutex_destroy(&tbl->mutex_printf);
-		pthread_mutex_destroy(&tbl->mutex_eaten);
-		return (destroy_forks(tbl, i), -1);
+		pthread_mutex_destroy(&mtx->mtx_printf);
+		pthread_mutex_destroy(&mtx->mtx_eaten);
+		return (destroy_forks(mtx, i), -1);
 	}
+	tbl->mtx = mtx;
 	return (0);
 }
 
@@ -54,10 +59,12 @@ t_table	*init_table(int argc, char **argv)
 		tbl->n_eat = ft_atoi(argv[5]);
 	else
 		tbl->n_eat = -1;
-	if (init_mutexes(tbl) == -1)
+	if (init_mtx(tbl) == -1)
 	{
-		if (tbl->forks)
-			free(tbl->forks);
+		if (tbl->mtx->forks)
+			free(tbl->mtx->forks);
+		if (tbl->mtx)
+			free(tbl->mtx);
 		return (free(tbl), NULL);
 	}
 	return (tbl);
@@ -65,16 +72,14 @@ t_table	*init_table(int argc, char **argv)
 
 void	sort_mutex_pointers(t_table *tbl, t_philo *philo, int i) // LATER Death
 {
-	philo->left_fork = &tbl->forks[i];
+	philo->left_fork = &tbl->mtx->forks[i];
 	if (i + 1 < tbl->n_philo)
-		philo->right_fork = &tbl->forks[i + 1];
+		philo->right_fork = &tbl->mtx->forks[i + 1];
 	else if (i + 1 == tbl->n_philo && tbl->n_philo > 1)
-		philo->right_fork = &tbl->forks[0];
+		philo->right_fork = &tbl->mtx->forks[0];
 	else
 		philo->right_fork = NULL;
-	philo->mutex_printf = &tbl->mutex_printf;
-	philo->mutex_eaten = &tbl->mutex_eaten;
-	philo->mutex_last_meal = &tbl->mutex_last_meal;
+	philo->mtx = tbl->mtx;
 }
 
 t_philo	*init_philo(t_table *tbl)
@@ -89,6 +94,7 @@ t_philo	*init_philo(t_table *tbl)
 	while (i < tbl->n_philo)
 	{
 		philo[i].id = i;
+		philo[i].t_die = tbl->t_die;
 		philo[i].t_eat = tbl->t_eat;
 		philo[i].t_sleep = tbl->t_sleep;
 		philo[i].n_eat = tbl->n_eat;

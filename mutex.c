@@ -2,12 +2,11 @@
 
 int	get_printf(t_philo *philo, long time, int id, char *str)
 {
-
-	pthread_mutex_lock(philo->mutex_printf);
+	pthread_mutex_lock(&philo->mtx->mtx_printf);
 	if (philo->dead == 1)
-		return (pthread_mutex_unlock(philo->mutex_printf), -1);
+		return (pthread_mutex_unlock(&philo->mtx->mtx_printf), -1);
 	printf("%ld %d %s\n", time, id, str);
-	pthread_mutex_unlock(philo->mutex_printf);
+	pthread_mutex_unlock(&philo->mtx->mtx_printf);
 	return (0);
 }
 

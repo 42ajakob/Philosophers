@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:46:00 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/11 12:20:57 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/11 14:54:51 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,15 @@
 # include <sys/time.h>
 # include <pthread.h>
 
+typedef struct s_mtx
+{
+	pthread_mutex_t	*forks;
+	pthread_mutex_t	mtx_printf;
+	// pthread_mutex_t	mutex_n_eat;
+	pthread_mutex_t	mtx_eaten;
+	pthread_mutex_t	mtx_last_meal;
+}	t_mtx;
+
 typedef struct s_table
 {
 	int				n_philo;
@@ -26,10 +35,7 @@ typedef struct s_table
 	long			t_eat;
 	long			t_sleep;
 	int				n_eat;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t mutex_printf;
-	pthread_mutex_t mutex_eaten;
-	pthread_mutex_t mutex_last_meal;
+	t_mtx			*mtx;
 }	t_table;
 
 typedef struct s_philo
@@ -38,6 +44,7 @@ typedef struct s_philo
 	long			sta_time;
 	long			cur_time;
 	int				n_eaten;
+	long			t_die;
 	int				t_eat;
 	int				t_sleep;
 	int				n_eat;
@@ -46,9 +53,7 @@ typedef struct s_philo
 	t_table			*tbl;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
-	pthread_mutex_t	*mutex_printf;
-	pthread_mutex_t	*mutex_eaten;
-	pthread_mutex_t	*mutex_last_meal;
+	t_mtx			*mtx;
 }	t_philo;
 
 // time.c
