@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:37:20 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/12 15:12:12 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 16:16:09 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,9 @@ void	*runtime(void *arg)
 
 	philo = (t_philo *)arg;
 	i = 0;
+	pthread_mutex_lock(&philo->mtx->mtx_printf);
 	philo->s_t = get_time();
+	pthread_mutex_unlock(&philo->mtx->mtx_printf);
 	if (philo->id % 2 != 0)
 		ft_usleep(philo->t_eat / 2);
 	while (i != get_n_eat(philo) && i != -1)
