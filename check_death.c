@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 13:57:37 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/12 14:04:43 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 14:21:39 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static void	*exit_philo(t_philo *philo, int i)
 			&& get_n_eat(philo) != -1)
 			return (check_death(philo));
 		pthread_mutex_lock(&philo[0].mtx->mtx_printf);
-		printf("%ld %d died", get_time() - philo[i].s_t, philo[i].id + 1);
+		printf("%ld %d died\n", get_time() - philo[i].s_t, philo[i].id + 1);
 		finish_philo(philo, philo[0].tbl->n_philo);
 		pthread_mutex_unlock(&philo[0].mtx->mtx_printf);
 	}
@@ -80,7 +80,7 @@ void	*check_death(void *arg)
 		i++;
 		if (i == philo[0].tbl->n_philo)
 		{
-			ft_usleep(1);
+			usleep(50);
 			i = 0;
 		}
 	}
