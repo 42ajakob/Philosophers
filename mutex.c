@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 13:16:30 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/12 13:16:53 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 13:50:21 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int	get_printf(t_philo *philo, long time, int id, char *str)
 {
 	pthread_mutex_lock(&philo->mtx->mtx_printf);
-	if (philo->dead == 1)
+	if (philo->finish == 1)
 		return (pthread_mutex_unlock(&philo->mtx->mtx_printf), -1);
 	printf("%ld %d %s\n", time, id, str);
 	pthread_mutex_unlock(&philo->mtx->mtx_printf);

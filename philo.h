@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:46:00 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/11 16:44:56 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 14:04:16 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,34 +41,29 @@ typedef struct s_table
 typedef struct s_philo
 {
 	int				id;
-	long			sta_time;
-	long			cur_time;
+	long			s_t;
+	long			c_t;
 	int				n_eaten;
 	long			t_die;
 	int				t_eat;
 	int				t_sleep;
 	long			last_meal;
-	int				dead;
+	int				finish;
 	t_table			*tbl;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	t_mtx			*mtx;
 }	t_philo;
 
-// time.c
-long	get_time(void);
-long	ft_usleep(long mil_sec);
+// check.death.c
+void	*check_death(void *arg);
 
-// philo_utils.c
-void	free_all(t_table *tbl, t_philo *philo);
-void	*ft_calloc(size_t count);
-int		ft_atoi(const char *str);
-
-// init.c
-t_table	*init_table(int argc, char **argv);
+// init_philo_thr.c
 t_philo	*init_philo(t_table *tbl);
-void	sort_mutex_pointers(t_table *tbl, t_philo *philo, int i);
 int		init_thread(t_table *tbl, t_philo *philo);
+
+// init_tbl_mtx.c
+t_table	*init_table(int argc, char **argv);
 
 // mutex.c
 int		get_printf(t_philo *philo, long time, int id, char *str);
@@ -76,12 +71,17 @@ long	get_last_meal(t_philo *philo);
 int		get_n_eaten(t_philo *philo);
 int		get_n_eat(t_philo *philo);
 
-// validate.c
-int		valid_args(int argc, char **argv);
+// philo_utils.c
+void	free_all(t_table *tbl, t_philo *philo);
+void	*ft_calloc(size_t count);
+int		ft_atoi(const char *str);
+long	get_time(void);
+long	ft_usleep(long mil_sec);
 
 // philo.c
-int		check_eaten(t_philo *philo);
 void	*runtime(void *arg);
-void	*check_death(void *arg);
+
+// validate.c
+int		valid_args(int argc, char **argv);
 
 #endif

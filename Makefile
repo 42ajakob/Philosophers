@@ -1,10 +1,12 @@
 NAME		=	philo
 
 SRCS		=	philo.c \
-				init.c \
-				validate.c \
 				philo_utils.c \
-				mutex.c
+				validate.c \
+				init_philo_thr.c \
+				init_tbl_mtx.c \
+				mutex.c \
+				check_death.c
 
 OBJS		=	${SRCS:.c=.o}
 
