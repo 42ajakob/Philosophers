@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:37:20 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/12 14:06:25 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 15:12:12 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ int	one_philo(t_philo *p)
 	p->last_meal = get_time();
 	pthread_mutex_unlock(&p->mtx->mtx_last_meal);
 	get_printf(p, get_time() - p->s_t, p->id + 1, "has taken a fork");
+	pthread_mutex_unlock(p->left_fork);
 	ft_usleep(p->t_die + 10);
 	return (-1);
 }
