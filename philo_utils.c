@@ -6,11 +6,11 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 18:04:44 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/11 15:36:57 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 13:27:11 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "philo.h"
+#include "philo.h"
 
 void	free_all(t_table *tbl, t_philo *philo)
 {
@@ -65,19 +65,20 @@ int	ft_atoi(const char *str)
 long	get_time(void)
 {
 	struct timeval	tv;
+
 	if (gettimeofday(&tv, NULL) == -1)
 		return (0);
-	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000)); // mil_sec since 1970
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-long ft_usleep(long mil_sec)
+long	ft_usleep(long mil_sec)
 {
-	long start;
-	long wait;
+	long	start;
+	long	wait;
 
 	start = get_time();
 	wait = start + mil_sec;
-	while (get_time() < wait) // Include Death Check
+	while (get_time() < wait)
 		usleep(50);
 	return (get_time());
 }

@@ -6,17 +6,17 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:37:20 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/12 13:12:53 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 13:23:31 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "philo.h"
+#include "philo.h"
 
 /* norminette */ /* Leaks and Hellgrind */
 
 int	check_eaten(t_philo *philo)
 {
-	int i;
+	int	i;
 	int	j;
 
 	i = 0;
@@ -36,7 +36,7 @@ int	check_eaten(t_philo *philo)
 
 void	set_philo_dead(t_philo *philo, int n_philo)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < n_philo)
@@ -49,12 +49,13 @@ void	set_philo_dead(t_philo *philo, int n_philo)
 void	*check_death(void *arg)
 {
 	t_philo	*philo;
-	int 	i;
+	int		i;
 
 	philo = (t_philo *)arg;
 	i = 0;
 	ft_usleep(philo[0].tbl->t_die - 10);
-	while ((get_time() - get_last_meal(&philo[i]) < philo[i].tbl->t_die && check_eaten(philo) == 0))
+	while ((get_time() - get_last_meal(&philo[i]) < philo[i].tbl->t_die
+			&& check_eaten(philo) == 0))
 	{
 		i++;
 		if (i == philo[0].tbl->n_philo)
@@ -63,12 +64,14 @@ void	*check_death(void *arg)
 			i = 0;
 		}
 	}
-	if (get_time() - get_last_meal(&philo[i]) >= philo[i].tbl->t_die && check_eaten(philo) == 0)
+	if (get_time() - get_last_meal(&philo[i]) >= philo[i].tbl->t_die
+		&& check_eaten(philo) == 0)
 	{
-		if (get_n_eaten(&philo[i]) >= get_n_eat(philo) && get_n_eat(philo) != -1) // mtx
+		if (get_n_eaten(&philo[i]) >= get_n_eat(philo)
+			&& get_n_eat(philo) != -1)
 			return (check_death(philo));
 		pthread_mutex_lock(&philo[0].mtx->mtx_printf);
-		printf("%ld %d died\n", get_time() - philo[i].sta_time, philo[i].id + 1);
+		printf("%ld %d died", get_time() - philo[i].sta_time, philo[i].id + 1);
 		set_philo_dead(philo, philo[0].tbl->n_philo);
 		pthread_mutex_unlock(&philo[0].mtx->mtx_printf);
 	}
@@ -120,8 +123,8 @@ int	simulation(t_philo *philo)
 
 void	*runtime(void *arg)
 {
-	t_philo *philo;
-	int i;
+	t_philo	*philo;
+	int		i;
 
 	philo = (t_philo *)arg;
 	i = 0;
@@ -145,9 +148,8 @@ void	*runtime(void *arg)
 int	main(int argc, char **argv)
 {
 	t_table	*tbl;
-	t_philo *philo;
+	t_philo	*philo;
 
-	// atexit(leaks);
 	if (valid_args(argc, argv) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	tbl = init_table(argc, argv);
