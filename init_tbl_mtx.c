@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 13:17:06 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/12 13:42:49 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 15:16:40 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	init_mtx(t_table *tbl)
 		return (-1);
 	mtx->forks = ft_calloc(sizeof(pthread_mutex_t) * tbl->n_philo + 1);
 	if (!mtx->forks)
-		return (free(mtx), mtx->forks = NULL, -1);
+		return (free(mtx), -1);
 	while (i < tbl->n_philo)
 	{
 		if (pthread_mutex_init(&mtx->forks[i], NULL) != 0)
