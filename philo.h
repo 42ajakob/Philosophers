@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:46:00 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/11 15:44:50 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/11 16:44:56 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ int		get_n_eat(t_philo *philo);
 int		valid_args(int argc, char **argv);
 
 // philo.c
+int		check_eaten(t_philo *philo);
 void	*runtime(void *arg);
 void	*check_death(void *arg);
 

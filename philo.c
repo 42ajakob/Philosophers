@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 17:37:20 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/11 16:32:16 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/03/12 13:12:53 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,16 @@ void	*check_death(void *arg)
 	}
 	if (get_time() - get_last_meal(&philo[i]) >= philo[i].tbl->t_die && check_eaten(philo) == 0)
 	{
-		
 		if (get_n_eaten(&philo[i]) >= get_n_eat(philo) && get_n_eat(philo) != -1) // mtx
 			return (check_death(philo));
 		pthread_mutex_lock(&philo[0].mtx->mtx_printf);
 		printf("%ld %d died\n", get_time() - philo[i].sta_time, philo[i].id + 1);
+		set_philo_dead(philo, philo[0].tbl->n_philo);
+		pthread_mutex_unlock(&philo[0].mtx->mtx_printf);
+	}
+	if (check_eaten(philo) == 1)
+	{
+		pthread_mutex_lock(&philo[0].mtx->mtx_printf);
 		set_philo_dead(philo, philo[0].tbl->n_philo);
 		pthread_mutex_unlock(&philo[0].mtx->mtx_printf);
 	}
