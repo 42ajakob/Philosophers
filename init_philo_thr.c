@@ -6,7 +6,7 @@
 /*   By: ajakob <ajakob@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 13:41:32 by ajakob            #+#    #+#             */
-/*   Updated: 2024/03/12 13:50:11 by ajakob           ###   ########.fr       */
+/*   Updated: 2024/07/26 17:41:03 by ajakob           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,14 +49,14 @@ t_philo	*init_philo(t_table *tbl)
 	return (philo);
 }
 
-int	ctr_join_thr(t_table *tbl, pthread_t *thr, t_philo *philo, int *j)
+int	ctr_join_thr(t_table *tbl, pthread_t *thr, t_philo *philo)
 {
 	int	i;
 
 	i = 0;
 	while (i < tbl->n_philo)
 	{
-		if (pthread_create(&thr[i], NULL, &runtime, (void *)&philo[j[i]]) != 0)
+		if (pthread_create(&thr[i], NULL, &runtime, (void *)&philo[i]) != 0)
 			return (-1);
 		i++;
 	}
@@ -75,24 +75,12 @@ int	ctr_join_thr(t_table *tbl, pthread_t *thr, t_philo *philo, int *j)
 int	init_thread(t_table *tbl, t_philo *philo)
 {
 	pthread_t	*thr;
-	int			*j;
-	int			i;
 
-	i = 0;
 	thr = ft_calloc(sizeof(pthread_t) * tbl->n_philo + 1);
 	if (!thr)
 		return (-1);
-	j = ft_calloc(sizeof(int) * tbl->n_philo);
-	if (!j)
+	if (ctr_join_thr(tbl, thr, philo) == -1)
 		return (free(thr), -1);
-	while (i < tbl->n_philo)
-	{
-		j[i] = i;
-		i++;
-	}
-	if (ctr_join_thr(tbl, thr, philo, j) == -1)
-		return (free(thr), free(j), -1);
-	free(j);
 	free(thr);
 	return (0);
 }
