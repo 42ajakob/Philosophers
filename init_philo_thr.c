@@ -76,7 +76,7 @@ int	init_thread(t_table *tbl, t_philo *philo)
 {
 	pthread_t	*thr;
 
-	thr = ft_calloc(sizeof(pthread_t) * tbl->n_philo + 1);
+	thr = ft_calloc(sizeof(pthread_t) * (tbl->n_philo + 1));
 	if (!thr)
 		return (-1);
 	if (ctr_join_thr(tbl, thr, philo) == -1)
